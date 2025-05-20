@@ -95,6 +95,15 @@
     #backBtn:hover {
       background-color: #00e5ff;
     }
+    #ad-container {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: #000;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
@@ -109,6 +118,19 @@
   <button id="backBtn" style="display:none" onclick="goBack()">Back</button>
   <div class="status" id="status"></div>
   <div class="board" id="board"></div>
+
+  <div id="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '35b675dd3de935896b51142ba1b9f570',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/35b675dd3de935896b51142ba1b9f570/invoke.js"></script>
+  </div>
 
   <audio id="clickSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
   <audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
