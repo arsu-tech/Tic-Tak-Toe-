@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Tic Tac Toe</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at center, #1e004e, #100028);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #home {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #00f2ff, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #start-btn {
+      padding: 15px 30px;
+      font-size: 24px;
+      background-color: #00f2ff;
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #game {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .cell {
+      background-color: transparent;
+      border: 2px solid #00f2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      border-radius: 20px;
+      color: white;
+      text-shadow: 0 0 15px #00f2ff;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00f2ff;
+    }
+
+    .cell.O {
+      color: #00f2ff;
+    }
+
+    .cell.X {
+      color: #ff4f91;
+      text-shadow: 0 0 15px #ff4f91;
+    }
+
+    .winner-line {
+      position: absolute;
+      width: 280px;
+      height: 5px;
+      background-color: #00f2ff;
+      box-shadow: 0 0 10px #00f2ff;
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .winner-message {
+      margin-top: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00f2ff;
+      text-shadow: 0 0 10px #00f2ff;
+    }
+  </style>
+</head>
+<body>
+  <div id="home">
+    <h1>Neon Tic Tac Toe</h1>
+    <button id="start-btn">Start Game</button>
+  </div>
+
+  <div id="game">
+    <div style="position: relative;">
+      <div class="board" id="board"></div>
+      <div id="winner-line" class="winner-line"></div>
+    </div>
+    <div class="winner-message" id="winner"></div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('start-btn');
+    const home = document.getElementById('home');
+    const game = document.getElementById('game');
+    const board = document.getElementById('board');
+    const winnerDiv = document.getElementById('winner');
+    const winnerLine = document.getElementById('winner-line');
+
+    let currentPlayer = 'O';
+    let cells = Array(9).fill(null);
+    let gameOver = false;
+
+    startBtn.onclick = () => {
+      home.style.display = 'none';
+      game.style.display = 'flex';
+      startGame();
+    };
+
+    function startGame() {
+      board.innerHTML = '';
+      winnerDiv.textContent = '';
+      winnerLine.style.transform = 'scaleX(0)';
+      cells = Array(9).fill(null);
+      gameOver = false;
+      currentPlayer = 'O';
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.onclick = () => handleMove(i, cell);
+        board.appendChild(cell);
+      }
+    }
+
+    function handleMove(index, cell) {
+      if (gameOver || cells[index]) return;
+
+      cells[index] = currentPlayer;
+      cell.textContent = currentPlayer;
+      cell.classList.add(currentPlayer);
+
+      const winPattern = checkWin();
+      if (winPattern) {
+        winnerDiv.textContent = `Player ${currentPlayer} Wins!`;
+        drawLine(winPattern);
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'O' ? 'X' : 'O';
+
+      if (currentPlayer === 'X') {
+        setTimeout(() => computerMove(), 400);
+      }
+    }
+
+    function computerMove() {
+      if (gameOver) return;
+      const emptyIndices = cells.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+      const move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+      const cell = document.querySelector(`.cell[data-index='${move}']`);
+      handleMove(move, cell);
+    }
+
+    function checkWin() {
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+
+      return winPatterns.find(pattern => {
+        const [a, b, c] = pattern;
+        return cells[a] && cells[a] === cells[b] && cells[a] === cells[c];
+      });
+    }
+
+    function drawLine(pattern) {
+      const [a, b, c] = pattern;
+      const positions = [
+        { x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 },
+        { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 },
+        { x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }
+      ];
+
+      const start = positions[a];
+      const end = positions[c];
+
+      const deltaX = end.x - start.x;
+      const deltaY = end.y - start.y;
+      const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+
+      const offsetX = start.x * 100 + 45;
+      const offsetY = start.y * 100 + 45;
+
+      winnerLine.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${angle}deg) scaleX(1)`;
+    }
+  </script>
+</body>
+</html>
